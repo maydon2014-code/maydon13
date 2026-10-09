@@ -1,0 +1,508 @@
+<title>ภารกิจริมน้ำ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600&family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap">
+<style>
+/* Layout: one centered play column; scene picture on top, voice control below, like a lifeguard's signboard */
+:root{
+  --bg:#eef6f6; --surface:#ffffff; --ink:#0f2e3a; --muted:#4f6b74;
+  --lagoon:#0d7c86; --lagoon-soft:#d3ecee; --buoy:#e8452c; --buoy-soft:#fde4de;
+  --ok:#1f8a4c; --ok-soft:#dcf3e5; --line:#c9dfe2; --build:#6a4fc2; --build-soft:#e9e3fa;
+  --f-display:"Mitr","IBM Plex Sans Thai",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans Thai","Noto Sans Thai",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0a1d24; --surface:#112a33; --ink:#e6f3f4; --muted:#9bb8bf;
+  --lagoon:#3fb6bf; --lagoon-soft:#16404a; --buoy:#ff6a4f; --buoy-soft:#43231d;
+  --ok:#4fcf86; --ok-soft:#17402b; --line:#244a54; --build:#b3a0ff; --build-soft:#2c2650; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0a1d24; --surface:#112a33; --ink:#e6f3f4; --muted:#9bb8bf;
+  --lagoon:#3fb6bf; --lagoon-soft:#16404a; --buoy:#ff6a4f; --buoy-soft:#43231d;
+  --ok:#4fcf86; --ok-soft:#17402b; --line:#244a54; --build:#b3a0ff; --build-soft:#2c2650; color-scheme:dark}
+html,body{background:var(--bg);color:var(--ink)}
+body{font-family:var(--f-body);font-size:16px;line-height:1.6;padding:0 16px}
+.wrap{max-width:640px;margin:0 auto;padding-block:20px 40px;display:flex;flex-direction:column;gap:16px}
+h1,h2,h3{font-family:var(--f-display);font-weight:600;margin:0;text-wrap:balance;line-height:1.25}
+h1{font-size:clamp(1.8rem,6vw,2.4rem)}
+h2{font-size:1.4rem}
+p{margin:0}
+button{font:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid var(--lagoon);outline-offset:3px}
+.eyebrow{font-family:var(--f-display);font-size:.85rem;letter-spacing:.06em;color:var(--lagoon);font-weight:500}
+
+/* start */
+.intro{display:flex;flex-direction:column;gap:14px}
+.rules{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:460px){.rules{grid-template-columns:1fr}}
+.rule{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.rule h3{font-size:1.05rem}
+.rule.prevent h3{color:var(--lagoon)}
+.rule.help h3{color:var(--buoy)}
+.words{display:flex;flex-wrap:wrap;gap:6px}
+.word{font-family:var(--f-display);font-weight:500;padding:2px 12px;border-radius:999px;font-size:1rem}
+.build .word{background:var(--build-soft);color:var(--build)}
+.should .word{background:var(--ok-soft);color:var(--ok)}
+.rule.build h3{color:var(--build)}
+.rule.should h3{color:var(--ok)}
+.tag.build{background:var(--build-soft);color:var(--build)}
+.tag.should{background:var(--ok-soft);color:var(--ok)}
+.chip.b{border-color:var(--build-soft)}
+.chip.s{border-color:var(--ok-soft)}
+.setpick{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.setpick button{text-align:left;border:2px solid var(--line);background:var(--surface);color:var(--ink);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.setpick button b{font-family:var(--f-display);font-size:1.15rem;font-weight:500}
+.setpick button span{color:var(--muted);font-size:.9rem}
+.setpick button.on{border-color:var(--lagoon);box-shadow:inset 0 0 0 1px var(--lagoon)}
+.setpick button.on b{color:var(--lagoon)}
+.prevent .word{background:var(--lagoon-soft);color:var(--lagoon)}
+.help .word{background:var(--buoy-soft);color:var(--buoy)}
+.howto{color:var(--muted);font-size:.95rem}
+.rounds{display:flex;flex-direction:column;gap:6px}
+.seg{display:flex;gap:8px;flex-wrap:wrap}
+.seg button{min-width:56px;padding:8px 14px;border-radius:10px;border:2px solid var(--line);background:var(--surface);color:var(--ink);font-family:var(--f-display);font-size:1.1rem;font-variant-numeric:tabular-nums}
+.seg button.on{border-color:var(--lagoon);background:var(--lagoon);color:#fff}
+.count{font-family:var(--f-display);font-weight:500;font-variant-numeric:tabular-nums;color:var(--muted)}
+.count b{color:var(--ink);font-size:1.15rem}
+.bar{height:8px;border-radius:4px;background:var(--line);overflow:hidden}
+.bar span{display:block;height:100%;background:var(--ok);transition:width .3s}
+.timer{display:flex;align-items:center;gap:12px}
+.tbar{flex:1;height:14px;border-radius:7px;background:var(--line);overflow:hidden}
+.tbar span{display:block;height:100%;background:var(--lagoon);transition:width .1s linear}
+.tbar span.low{background:var(--buoy)}
+.timer b{font-family:var(--f-display);font-size:1.4rem;min-width:2.2em;text-align:right;font-variant-numeric:tabular-nums}
+.cd{width:100%;height:100%;display:grid;place-items:center;background:var(--lagoon);color:#fff;font-family:var(--f-display);font-weight:600}
+.cd span{font-size:clamp(5rem,28vw,9rem);line-height:1;animation:pop .8s ease-out both}
+.cd small{font-size:1.1rem;font-weight:500;opacity:.9}
+@keyframes pop{from{transform:scale(1.6);opacity:0}30%{transform:scale(1);opacity:1}to{transform:scale(.9);opacity:.85}}
+@media (prefers-reduced-motion:reduce){.cd span{animation:none}}
+.btn{border:0;border-radius:14px;padding:14px 22px;font-family:var(--f-display);font-weight:500;font-size:1.15rem}
+.btn-main{background:var(--buoy);color:#fff}
+.btn-main:hover{filter:brightness(1.06)}
+.btn-ghost{background:transparent;color:var(--lagoon);border:2px solid var(--lagoon)}
+
+/* play */
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.pips{display:flex;gap:6px}
+.pip{width:26px;height:8px;border-radius:4px;background:var(--line)}
+.pip.done{background:var(--ok)}
+.pip.now{background:var(--lagoon)}
+.tag{font-family:var(--f-display);font-size:.9rem;padding:3px 12px;border-radius:999px}
+.tag.prevent{background:var(--lagoon-soft);color:var(--lagoon)}
+.tag.help{background:var(--buoy-soft);color:var(--buoy)}
+.scene{border-radius:18px;overflow:hidden;border:3px solid var(--ink);background:#bfe6f0;aspect-ratio:400/260;max-width:100%}
+.scene svg{display:block;width:100%;height:100%}
+.caption{font-size:1.05rem}
+.ask{font-family:var(--f-display);font-size:1.35rem;font-weight:500}
+.voice{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.mic{width:84px;height:84px;border-radius:50%;border:0;background:var(--lagoon);color:#fff;display:grid;place-items:center;flex:none;position:relative}
+.mic svg{width:38px;height:38px}
+.mic.listening{background:var(--buoy)}
+.mic.listening::after{content:"";position:absolute;inset:-8px;border-radius:50%;border:3px solid var(--buoy);animation:pulse 1.2s ease-out infinite}
+@keyframes pulse{from{transform:scale(.9);opacity:1}to{transform:scale(1.25);opacity:0}}
+@media (prefers-reduced-motion:reduce){.mic.listening::after{animation:none}}
+.heard{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+.heard .status{color:var(--muted);font-size:.95rem}
+.heard .text{font-family:var(--f-display);font-size:1.3rem;min-height:1.6em;overflow-wrap:anywhere}
+.chips-label{color:var(--muted);font-size:.9rem}
+.chips{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.chip{border-radius:12px;padding:10px 6px;font-family:var(--f-display);font-size:1.05rem;border:2px solid var(--line);background:var(--surface);color:var(--ink)}
+.chip.p{border-color:var(--lagoon-soft)}
+.chip.h{border-color:var(--buoy-soft)}
+.chip:hover{border-color:var(--lagoon)}
+.chip:disabled{opacity:.5;cursor:default}
+.feedback{border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.feedback.ok{background:var(--ok-soft)}
+.feedback.no{background:var(--buoy-soft)}
+.feedback .verdict{font-family:var(--f-display);font-size:1.3rem;font-weight:600}
+.feedback.ok .verdict{color:var(--ok)}
+.feedback.no .verdict{color:var(--buoy)}
+.feedback .actions{display:flex;gap:10px;flex-wrap:wrap}
+
+/* end */
+.score{font-family:var(--f-display);font-size:3rem;font-weight:600;color:var(--lagoon);font-variant-numeric:tabular-nums;line-height:1}
+.stars{font-size:1.8rem;letter-spacing:4px;color:#f2a900}
+.call{background:var(--surface);border:2px solid var(--buoy);border-radius:14px;padding:12px 16px;display:flex;align-items:center;gap:14px}
+.call b{font-family:var(--f-display);font-size:2rem;color:var(--buoy);font-variant-numeric:tabular-nums}
+.note{color:var(--muted);font-size:.9rem}
+</style>
+
+<div class="wrap">
+
+<section id="start" class="intro">
+  <span class="eyebrow">เกมฝึกพูด · ป้องกันเด็กจมน้ำ</span>
+  <h1>ภารกิจริมน้ำ</h1>
+  <p>ดูภาพสถานการณ์ แล้วพูดคำที่ถูกต้องใส่ไมโครโฟน ตอบให้ครบทุกรอบ จะได้เป็นผู้พิทักษ์ริมน้ำ</p>
+  <div class="rounds">
+    <span class="howto">เลือกชุดภารกิจ</span>
+    <div class="setpick" id="sets">
+      <button data-s="pp" class="on"><b>ป้องกันและช่วยเหลือ</b><span>3 ไม่ · 3 ช่วย</span></button>
+      <button data-s="bs"><b>สร้างและควรทำ</b><span>4 สร้าง · 2 ควร</span></button>
+    </div>
+  </div>
+  <div class="rules" id="rulesStart"></div>
+  <p class="howto">กดปุ่มไมโครโฟนแล้วพูดให้ชัด ถ้าเครื่องใช้ไมค์ไม่ได้ แตะคำตอบแทนได้</p>
+  <div class="rounds">
+    <span class="howto">ระดับความยาก</span>
+    <div class="seg" id="modes">
+      <button data-m="easy" class="on">ง่าย</button><button data-m="mid">ปานกลาง</button><button data-m="hard">ยาก</button>
+    </div>
+    <span class="howto" id="modeInfo"></span>
+  </div>
+  <div class="rounds">
+    <span class="howto">จำนวนรอบ (สุ่มภาพสลับไปมา)</span>
+    <div class="seg" id="rounds">
+      <button data-n="6">6</button><button data-n="12" class="on">12</button><button data-n="18">18</button><button data-n="24">24</button>
+    </div>
+  </div>
+  <div><button class="btn btn-main" id="go">เริ่มภารกิจ</button></div>
+</section>
+
+<section id="play" hidden>
+  <div class="wrap" style="padding:0">
+    <div class="top">
+      <span class="count">รอบที่ <b id="num"></b> / <span id="total"></span></span>
+      <span class="tag" id="tag"></span>
+    </div>
+    <div class="bar"><span id="bar"></span></div>
+    <div class="scene" id="scene"></div>
+    <p class="caption" id="caption"></p>
+    <div class="timer" id="timerRow" hidden>
+      <div class="tbar"><span id="tbar"></span></div>
+      <b id="tleft"></b>
+    </div>
+    <p class="ask">เห็นแบบนี้ ต้องพูดว่าอะไร?</p>
+    <div class="voice">
+      <button class="mic" id="mic" aria-label="กดแล้วพูด">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v4"/></svg>
+      </button>
+      <div class="heard">
+        <span class="status" id="status">กดไมค์แล้วพูดได้เลย</span>
+        <span class="text" id="heard"></span>
+      </div>
+    </div>
+    <span class="chips-label" id="chipsLabel">หรือแตะคำตอบ</span>
+    <div class="chips" id="chips"></div>
+    <div class="feedback" id="feedback" hidden>
+      <span class="verdict" id="verdict"></span>
+      <p id="explain"></p>
+      <div class="actions" id="fbActions"></div>
+    </div>
+  </div>
+</section>
+
+<section id="end" class="intro" hidden>
+  <span class="eyebrow">ภารกิจสำเร็จ</span>
+  <h1>ผู้พิทักษ์ริมน้ำ</h1>
+  <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+    <span class="score" id="score"></span>
+    <span class="stars" id="stars"></span>
+  </div>
+  <p class="note" id="note"></p>
+  <div class="rules" id="rulesEnd"></div>
+  <div class="call"><b>1669</b><span>เบอร์แจ้งเหตุฉุกเฉินทางการแพทย์ ให้ผู้ใหญ่โทรทันทีเมื่อพบคนตกน้ำ</span></div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap">
+    <button class="btn btn-main" id="again">เล่นอีกครั้ง</button>
+    <button class="btn btn-ghost" id="home">กลับหน้าแรก</button>
+  </div>
+</section>
+
+</div>
+
+<script>
+/* ---------- drawing ---------- */
+const SKIN="#f3c39b", HAIR="#2b211c", DARK="#24323a";
+function kidWalk(x,y,shirt,s=1){return `<g transform="translate(${x} ${y}) scale(${s})" stroke="${DARK}" stroke-width="5" stroke-linecap="round">
+ <line x1="-3" y1="-28" x2="-12" y2="0"/><line x1="3" y1="-28" x2="12" y2="0"/>
+ <line x1="-6" y1="-45" x2="-16" y2="-30"/><line x1="6" y1="-45" x2="18" y2="-34"/>
+ <rect x="-10" y="-51" width="20" height="26" rx="8" fill="${shirt}" stroke="none"/>
+ <circle cx="0" cy="-62" r="12" fill="${SKIN}" stroke="none"/>
+ <path d="M-12 -64 A12 12 0 0 1 12 -66 L9 -70 A10 10 0 0 0 -11 -68Z" fill="${HAIR}" stroke="none"/>
+ <circle cx="6" cy="-62" r="1.8" fill="${DARK}" stroke="none"/></g>`}
+function kidBend(x,y,shirt,deg,reach){return `<g transform="translate(${x} ${y})" stroke="${DARK}" stroke-width="5" stroke-linecap="round">
+ <line x1="-3" y1="-28" x2="-7" y2="0"/><line x1="3" y1="-28" x2="6" y2="0"/>
+ <g transform="rotate(${deg} 0 -28)">
+  <rect x="-10" y="-51" width="20" height="26" rx="8" fill="${shirt}" stroke="none"/>
+  <line x1="6" y1="-45" x2="${reach?24:16}" y2="${reach?-48:-30}"/>
+  <circle cx="0" cy="-62" r="12" fill="${SKIN}" stroke="none"/>
+  <path d="M-12 -64 A12 12 0 0 1 12 -66 L9 -70 A10 10 0 0 0 -11 -68Z" fill="${HAIR}" stroke="none"/>
+  <circle cx="6" cy="-62" r="1.8" fill="${DARK}" stroke="none"/>
+ </g></g>`}
+function kidDrown(x,y,s=1,water="#2f8fb0"){return `<g transform="translate(${x} ${y}) scale(${s})">
+ <path d="M-34 4 q8 -10 16 0 M18 4 q8 -10 16 0" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/>
+ <g stroke="${DARK}" stroke-width="5" stroke-linecap="round"><line x1="-8" y1="-2" x2="-20" y2="-26"/><line x1="8" y1="-2" x2="20" y2="-26"/></g>
+ <circle cx="-20" cy="-28" r="4" fill="${SKIN}"/><circle cx="20" cy="-28" r="4" fill="${SKIN}"/>
+ <circle cx="0" cy="-6" r="12" fill="${SKIN}"/>
+ <path d="M-12 -8 A12 12 0 0 1 12 -10 L9 -14 A10 10 0 0 0 -11 -12Z" fill="${HAIR}"/>
+ <ellipse cx="-4" cy="-6" rx="1.8" ry="2.4" fill="${DARK}"/><ellipse cx="4" cy="-6" rx="1.8" ry="2.4" fill="${DARK}"/>
+ <ellipse cx="0" cy="0" rx="3" ry="2.4" fill="${DARK}"/>
+ <path d="M-30 4 q7.5 -6 15 0 t15 0 t15 0 t15 0 L30 14 L-30 14Z" fill="${water}"/></g>`}
+const sky=`<defs><linearGradient id="sk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9fd8ec"/><stop offset="1" stop-color="#e3f4f7"/></linearGradient></defs><rect width="400" height="260" fill="url(#sk)"/><circle cx="350" cy="40" r="20" fill="#ffd45c"/>`;
+const ripple=(x,y)=>`<path d="M${x} ${y} q8 -5 16 0 t16 0" stroke="#ffffff" stroke-opacity=".7" stroke-width="2.5" fill="none" stroke-linecap="round"/>`;
+const ring=(x,y)=>`<g transform="translate(${x} ${y})"><circle r="15" fill="none" stroke="#e8452c" stroke-width="9"/><circle r="15" fill="none" stroke="#fff" stroke-width="9" stroke-dasharray="11.8 11.8"/></g>`;
+const gallon=(x,y)=>`<g transform="translate(${x} ${y})"><rect x="-12" y="-30" width="24" height="30" rx="5" fill="#f6fbfc" stroke="${DARK}" stroke-width="2"/><rect x="-4" y="-36" width="8" height="7" rx="1.5" fill="#2f6fd0"/></g>`;
+const deck=`<rect y="150" width="400" height="110" fill="#e7d8b8"/><g stroke="#d3c19c" stroke-width="2">${[0,40,80,120,160,200,240].map(x=>`<line x1="${x}" y1="150" x2="${x}" y2="260"/>`).join("")}</g>`;
+const pool=`<rect x="240" y="150" width="160" height="110" fill="#38a8cc"/><rect x="232" y="150" width="10" height="110" fill="#f6fbfc"/>${ripple(275,195)}${ripple(330,225)}`;
+
+function adultPhone(x,y,shirt){return `<g transform="translate(${x} ${y})" stroke="${DARK}" stroke-width="6" stroke-linecap="round">
+ <line x1="-5" y1="-40" x2="-9" y2="0"/><line x1="5" y1="-40" x2="9" y2="0"/>
+ <rect x="-14" y="-84" width="28" height="48" rx="10" fill="${shirt}" stroke="none"/>
+ <line x1="6" y1="-74" x2="16" y2="-46"/><line x1="-8" y1="-74" x2="-20" y2="-92"/>
+ <g transform="rotate(-18 0 -98)"><circle cx="0" cy="-100" r="14" fill="${SKIN}" stroke="none"/>
+ <path d="M-14 -100 A14 14 0 0 1 14 -104 L14 -88 Q16 -110 -2 -112 Q-16 -112 -14 -100Z" fill="${HAIR}" stroke="none"/>
+ <circle cx="-7" cy="-98" r="1.8" fill="${DARK}" stroke="none"/></g>
+ <rect x="-30" y="-108" width="11" height="18" rx="2" fill="#1b2328" stroke="none"/><rect x="-28.5" y="-106" width="8" height="13" rx="1" fill="#7fe0ff" stroke="none"/></g>`}
+const grass=`<rect y="150" width="400" height="110" fill="#8fcf6e"/>`;
+const qmark=(x,y,col="#e8452c")=>`<text x="${x}" y="${y}" fill="${col}" font-family="Mitr,sans-serif" font-weight="600" font-size="40" text-anchor="middle">?</text>`;
+
+const SCENES=[
+ {id:"near",sum:"แหล่งน้ำ",group:"prevent",say:"ไม่ใกล้",
+  caption:"น้องกำลังเดินเข้าไปใกล้บ่อน้ำ",
+  match:/ใกล้|ไกล/, explain:"อยู่ห่างจากบ่อ สระ คลอง และแหล่งน้ำทุกชนิด ถ้าจะไปเล่นใกล้น้ำต้องมีผู้ใหญ่อยู่ด้วย",
+  svg:(c)=>`${sky}<rect y="150" width="400" height="110" fill="#8fcf6e"/><ellipse cx="300" cy="200" rx="120" ry="42" fill="#2f8fb0"/>${ripple(265,195)}${ripple(315,212)}
+   <path d="M150 205 L215 200" stroke="#e8452c" stroke-width="4" stroke-dasharray="8 7" stroke-linecap="round"/><path d="M212 192 L224 200 L213 208" fill="none" stroke="#e8452c" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+   ${kidWalk(120,215,c)}`},
+ {id:"bend",sum:"ลงไปมองหรือหยิบของริมขอบ",group:"prevent",say:"ไม่ก้ม",
+  caption:"ลูกบอลตกอยู่ริมขอบสระ น้องกำลังจะก้มลงไปหยิบ",
+  match:/ก้ม|กม|ก๊ม|ก๋ม|ค้ม/, explain:"ขอบสระลื่น ถ้าก้มลงไปมองหรือหยิบของ อาจเสียหลักตกน้ำได้ ให้บอกผู้ใหญ่มาหยิบให้",
+  svg:(c)=>`${sky}${deck}${pool}<circle cx="226" cy="142" r="11" fill="#e8452c"/><path d="M215 142 h22" stroke="#fff" stroke-width="3"/>
+   ${kidBend(180,215,c,48,false)}`},
+ {id:"pick",sum:"ของที่ตกน้ำ",group:"prevent",say:"ไม่เก็บ",
+  caption:"ของเล่นตกลงไปลอยอยู่ในน้ำ น้องเอื้อมมือจะลงไปเก็บ",
+  match:/เก็บ|เก๊บ|เก้บ/, explain:"ของตกน้ำ ห้ามลงไปเก็บเอง ของหายได้ซื้อใหม่ แต่ชีวิตเราสำคัญที่สุด ให้บอกผู้ใหญ่",
+  svg:(c)=>`${sky}${deck}${pool}<g transform="translate(300 200)"><ellipse cx="0" cy="0" rx="18" ry="11" fill="#ffd23f"/><circle cx="12" cy="-12" r="9" fill="#ffd23f"/><path d="M20 -12 l8 2 l-8 3z" fill="#f29b38"/><circle cx="14" cy="-14" r="1.6" fill="${DARK}"/></g>${ripple(282,212)}
+   ${kidBend(205,215,c,72,true)}`},
+ {id:"shout",sum:"ช่วยด้วย เรียกผู้ใหญ่",group:"help",say:"ช่วยด้วย",
+  caption:"มีเพื่อนตกน้ำ กำลังดิ้นอยู่ในน้ำ",
+  match:/ช่วย|ตะโกน/, explain:"ตะโกนดัง ๆ เรียกผู้ใหญ่มาช่วย และให้ผู้ใหญ่โทร 1669 ห้ามกระโดดลงไปช่วยเอง",
+  svg:(c)=>`${sky}<rect y="140" width="400" height="120" fill="#2f8fb0"/><path d="M0 140 L120 140 L150 260 L0 260Z" fill="#8fcf6e"/>${ripple(300,215)}${ripple(200,235)}
+   ${kidDrown(255,175,1.1)}<g fill="#e8452c" font-family="Mitr,sans-serif" font-weight="600" font-size="34"><text x="300" y="120">!</text><text x="196" y="122">!</text></g>`},
+ {id:"throw",sum:"ของลอยน้ำให้เกาะ",group:"help",say:"โยนของ",
+  caption:"เพื่อนตกน้ำอยู่ไกลจากฝั่ง บนฝั่งมีห่วงยางกับแกลลอนเปล่า",
+  match:/โยน|โยง/, explain:"คนตกน้ำอยู่ไกล ให้โยนของที่ลอยน้ำได้ เช่น ห่วงยาง แกลลอนหรือขวดพลาสติกเปล่าปิดฝา ให้เขาเกาะ",
+  svg:(c)=>`${sky}<rect y="140" width="400" height="120" fill="#2f8fb0"/><path d="M0 140 L100 140 L125 260 L0 260Z" fill="#8fcf6e"/>${ripple(200,200)}${ripple(260,235)}
+   ${ring(48,190)}${gallon(88,232)}
+   <path d="M125 168 L300 168" stroke="#fff" stroke-width="3" stroke-dasharray="7 7"/><text x="200" y="158" fill="#fff" font-family="Mitr,sans-serif" font-size="20" text-anchor="middle">ไกล</text>
+   ${kidDrown(330,180,0.85)}`},
+ {id:"reach",sum:"ไม้หรือผ้าให้จับ",group:"help",say:"ยื่นของ",
+  caption:"เพื่อนตกน้ำอยู่ใกล้ฝั่ง บนฝั่งมีไม้ยาวอยู่",
+  match:/ยื่น|ยืน/, explain:"คนตกน้ำอยู่ใกล้ ให้ยื่นไม้ เสื้อ หรือผ้าให้จับ แล้วนั่งหรือหมอบลงให้มั่นคงก่อนดึง เราจะได้ไม่ถูกดึงตกน้ำ",
+  svg:(c)=>`${sky}<rect y="140" width="400" height="120" fill="#2f8fb0"/><path d="M0 140 L175 140 L195 260 L0 260Z" fill="#8fcf6e"/>${ripple(290,215)}${ripple(330,240)}
+   <rect x="30" y="206" width="130" height="9" rx="4" fill="#8a5a2b" transform="rotate(-4 95 210)"/>
+   ${kidDrown(240,180,1.05)}`},
+ {id:"fence",group:"build",say:"ทำรั้ว",sum:"รอบบ่อ ปิดฝาโอ่งและถังน้ำ",
+  caption:"บ่อน้ำอยู่ข้างบ้าน ไม่มีอะไรกั้นเลย เด็ก ๆ วิ่งเล่นแถวนี้ทุกวัน",
+  match:/รั้ว|รัว|รั่ว|ล้อม|กั้น/, explain:"ทำรั้วล้อมรอบบ่อน้ำ และปิดฝาโอ่ง ถังน้ำ ให้เด็กเข้าไปถึงน้ำไม่ได้",
+  svg:(c)=>`${sky}${grass}<rect x="20" y="78" width="100" height="82" fill="#f0e2c8"/><path d="M8 84 L70 42 L132 84Z" fill="#c0543a"/><rect x="58" y="112" width="22" height="48" fill="#8a5a2b"/>
+   <ellipse cx="300" cy="205" rx="85" ry="32" fill="#2f8fb0"/>${ripple(275,203)}${ripple(310,215)}
+   <ellipse cx="295" cy="203" rx="92" ry="42" fill="none" stroke="#e8452c" stroke-width="3" stroke-dasharray="10 8"/>${qmark(300,140)}
+   ${kidWalk(175,232,c,.85)}`},
+ {id:"sign",group:"build",say:"ติดป้าย",sum:"เตือนว่าน้ำลึก อันตราย",
+  caption:"แหล่งน้ำลึก มีเสาตั้งอยู่ริมน้ำ แต่ไม่มีอะไรบอกว่าอันตราย",
+  match:/ป้าย|ปาย|ป่าย|ป๊าย/, explain:"ติดป้ายเตือนให้เห็นชัด เช่น “อันตราย น้ำลึก ห้ามลงเล่น” คนที่ผ่านมาจะได้ระวัง",
+  svg:(c)=>`${sky}${grass}<path d="M200 150 L400 150 L400 260 L170 260Z" fill="#1f6f8c"/><path d="M230 175 L400 175 L400 260 L210 260Z" fill="#175a72"/>${ripple(260,200)}${ripple(330,235)}
+   <rect x="146" y="96" width="8" height="78" fill="#8a5a2b"/><rect x="104" y="62" width="92" height="46" rx="4" fill="#ffffff" stroke="${DARK}" stroke-width="3"/>${qmark(150,100,"#9aa9ae")}
+   ${kidWalk(70,225,c,.85)}`},
+ {id:"gear",group:"build",say:"ห่วงยาง",sum:"เชือก ไม้ยาว วางไว้ริมน้ำ",
+  caption:"ริมสระว่ายน้ำ ที่แขวนว่างเปล่า ไม่มีอะไรไว้ช่วยคนตกน้ำ",
+  match:/ห่วง|หวง|อุปกรณ์|อุปกร|อุปกอน|เชือก/, explain:"จัดอุปกรณ์ช่วยชีวิตไว้ริมน้ำ เช่น ห่วงยาง เชือก ไม้ยาว หรือแกลลอนเปล่าผูกเชือก ให้หยิบใช้ได้ทันที",
+  svg:(c)=>`${sky}${deck}${pool}<rect x="176" y="70" width="8" height="82" fill="#8a5a2b"/><rect x="176" y="70" width="34" height="7" fill="#8a5a2b"/><path d="M206 77 v10 q0 6 -6 6" fill="none" stroke="${DARK}" stroke-width="3"/>
+   <circle cx="203" cy="113" r="17" fill="none" stroke="#9aa9ae" stroke-width="4" stroke-dasharray="6 6"/>${qmark(203,127,"#e8452c")}
+   ${kidWalk(90,225,c,.85)}`},
+ {id:"float",group:"build",say:"ลอยตัว",sum:"ฝึกทักษะเอาชีวิตรอดในน้ำ",
+  caption:"น้องพลัดตกน้ำคนเดียว แถวนั้นไม่มีใครอยู่เลย",
+  match:/ลอย|ล่อย|ว่าย|รอด/, explain:"ฝึกทักษะเอาชีวิตรอดในน้ำไว้ล่วงหน้า เช่น ลอยตัวท่าปลาดาว หายใจช้า ๆ เกาะของที่ลอยได้ แล้วรอคนมาช่วย",
+  svg:(c)=>`${sky}<rect y="140" width="400" height="120" fill="#2f8fb0"/><path d="M0 140 L90 140 L110 260 L0 260Z" fill="#8fcf6e"/>
+   <g fill="#2a7a3c"><circle cx="30" cy="118" r="20"/><circle cx="58" cy="124" r="16"/></g><rect x="40" y="128" width="6" height="14" fill="#8a5a2b"/>
+   ${ripple(180,215)}${ripple(320,235)}${kidDrown(250,182,1.1)}`},
+ {id:"watch",group:"should",say:"ดูแล",sum:"ใกล้ชิด อยู่ในระยะเอื้อมถึง",
+  caption:"แม่ก้มดูมือถือ ปล่อยลูกเล่นน้ำในกะละมังอยู่คนเดียว",
+  match:/ดูแล|ดู|แล|เฝ้า|ชิด/, explain:"เด็กจมน้ำได้แม้น้ำลึกแค่คืบ ผู้ใหญ่ต้องดูแลใกล้ชิด อยู่ในระยะที่เอื้อมมือถึง และมองเด็กตลอดเวลา",
+  svg:(c)=>`<rect width="400" height="260" fill="#dcecef"/><g stroke="#c4dbe0" stroke-width="2">${[40,80,120,160].map(y=>`<line x1="0" y1="${y}" x2="400" y2="${y}"/>`).join("")}${[50,100,150,200,250,300,350].map(x=>`<line x1="${x}" y1="0" x2="${x}" y2="180"/>`).join("")}</g><rect y="180" width="400" height="80" fill="#b9c9cc"/>
+   <g transform="translate(290 0)"><circle cx="0" cy="168" r="11" fill="${SKIN}"/><path d="M-11 166 A11 11 0 0 1 11 164 L8 160 A9 9 0 0 0 -10 162Z" fill="${HAIR}"/><rect x="-11" y="176" width="22" height="16" rx="6" fill="${SKIN}"/>
+   <path d="M-62 186 L62 186 L52 222 Q0 232 -52 222Z" fill="#3a7bd5"/><ellipse cx="0" cy="186" rx="62" ry="12" fill="#5fb2e8"/><path d="M-52 188 q10 -6 20 0 t20 0 t20 0 t20 0 t20 0" stroke="#fff" stroke-width="2" fill="none"/></g>
+   ${adultPhone(110,240,c)}`},
+ {id:"vest",group:"should",say:"เสื้อชูชีพ",sum:"สวมทุกครั้งที่ลงเรือหรือเล่นน้ำ",
+  caption:"ครอบครัวกำลังจะลงเรือ น้องยังไม่ได้ใส่อะไรป้องกันเลย",
+  match:/ชูชีพ|ชูชีด|ชีพ|ชูชี|เสื้อ/, explain:"สวมเสื้อชูชีพทุกครั้งที่โดยสารเรือหรือทำกิจกรรมทางน้ำ เลือกขนาดพอดีตัว และรัดสายให้แน่น",
+  svg:(c)=>`${sky}<rect y="165" width="400" height="95" fill="#2f8fb0"/>${ripple(60,215)}${ripple(300,235)}
+   <rect x="0" y="150" width="175" height="14" fill="#a8743f"/><g fill="#8a5a2b"><rect x="20" y="160" width="10" height="60"/><rect x="140" y="160" width="10" height="60"/></g>
+   <path d="M200 170 L380 170 L360 200 L215 200Z" fill="#c0543a"/><rect x="200" y="166" width="180" height="6" fill="#f0e2c8"/>
+   <g transform="translate(300 168)"><circle cx="0" cy="-42" r="12" fill="${SKIN}"/><path d="M-12 -44 A12 12 0 0 1 12 -46 L9 -50 A10 10 0 0 0 -11 -48Z" fill="${HAIR}"/><rect x="-13" y="-30" width="26" height="30" rx="7" fill="#ff7a1a"/><rect x="-13" y="-20" width="26" height="4" fill="#e6f3f4"/></g>
+   ${kidWalk(130,150,c,.9)}`},
+];
+
+/* ---------- state ---------- */
+const $=id=>document.getElementById(id);
+const MODES={
+  easy:{label:"ง่าย",time:0,chips:true,caption:true,retry:true,info:"ไม่จับเวลา มีคำบรรยายภาพ มีปุ่มคำตอบ ตอบผิดลองใหม่ได้"},
+  mid:{label:"ปานกลาง",time:10,chips:true,caption:true,retry:true,info:"ตอบภายใน 10 วินาที ตอบผิดลองใหม่ได้จนกว่าจะหมดเวลา"},
+  hard:{label:"ยาก",time:5,chips:false,caption:false,retry:false,info:"ตอบภายใน 5 วินาที ไม่มีคำบรรยายภาพ ต้องพูดเท่านั้น และตอบได้ครั้งเดียว"}
+};
+const GROUPS={
+  prevent:{label:"ป้องกัน",title:"3 ไม่ · ป้องกัน",ask:"เราจะป้องกันอย่างไร",cls:"p"},
+  help:{label:"ช่วยเหลือ",title:"3 ช่วย · ช่วยเหลือ",ask:"เราจะช่วยเพื่อนอย่างไร",cls:"h"},
+  build:{label:"สร้าง",title:"4 สร้าง",ask:"เราควรสร้างอะไร",cls:"b"},
+  should:{label:"ควรทำ",title:"2 ควร",ask:"ผู้ใหญ่ควรทำอย่างไร",cls:"s"}
+};
+const SETS={pp:{name:"ป้องกันและช่วยเหลือ",groups:["prevent","help"]},bs:{name:"สร้างและควรทำ",groups:["build","should"]}};
+let set="pp";
+const inSet=()=>SCENES.filter(x=>SETS[set].groups.includes(x.group));
+function rulesHTML(full){return SETS[set].groups.map(g=>`<div class="rule ${g}"><h3>${GROUPS[g].title}</h3>${full
+  ?`<p>${inSet().filter(x=>x.group===g).map(x=>`<b>${x.say}</b> ${x.sum}`).join("<br>")}</p>`
+  :`<div class="words">${inSet().filter(x=>x.group===g).map(x=>`<span class="word">${x.say}</span>`).join("")}</div>`}</div>`).join("")}
+function drawRules(){$("rulesStart").innerHTML=rulesHTML(false)}
+const SHIRTS=["#f29b38","#7b5cd6","#2a9d6f","#e05a8a","#3a7bd5","#c8a400"];
+let mode="easy",rounds=12,order=[],idx=0,tries=0,stars=0,missed=0,solved=false,locked=true,micWorks=null,rec=null,listening=false,timerId=null,cdId=null;
+
+function pickSeg(id,attr,cb){$(id).querySelectorAll("button").forEach(b=>b.onclick=()=>{$(id).querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b));cb(b.dataset[attr])})}
+pickSeg("modes","m",m=>{mode=m;$("modeInfo").textContent=MODES[m].info});
+pickSeg("rounds","n",n=>rounds=+n);
+pickSeg("sets","s",v=>{set=v;drawRules()});
+drawRules();
+$("modeInfo").textContent=MODES[mode].info;
+
+function show(id){["start","play","end"].forEach(s=>$(s).hidden=s!==id);window.scrollTo(0,0)}
+function makeOrder(n){
+  const out=[];let pool=[];
+  while(out.length<n){
+    if(!pool.length){pool=SCENES.map((_,i)=>i).filter(i=>SETS[set].groups.includes(SCENES[i].group));for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]]}
+      if(out.length&&pool[0]===out[out.length-1])pool.push(pool.shift())}
+    out.push(pool.shift());
+  }
+  return out;
+}
+function startGame(){order=makeOrder(rounds);idx=0;stars=0;missed=0;show("play");render()}
+function cur(){return SCENES[order[idx]]}
+function stopAll(){clearInterval(timerId);clearTimeout(cdId);if(listening){try{rec.abort()}catch(e){}}}
+
+function render(){
+  stopAll();
+  const s=cur(),M=MODES[mode];tries=0;solved=false;locked=true;
+  $("num").textContent=idx+1;$("total").textContent=order.length;
+  $("bar").style.width=(idx/order.length*100)+"%";
+  const t=$("tag");t.className="tag "+s.group;t.textContent=GROUPS[s.group].label;
+  t.hidden=mode==="hard";
+  $("caption").textContent=s.caption;$("caption").hidden=true;
+  $("heard").textContent="";$("feedback").hidden=true;$("timerRow").hidden=true;
+  $("status").textContent="เตรียมตัว…";
+    $("chips").innerHTML=inSet().map(x=>`<button class="chip ${GROUPS[x.group].cls}" data-id="${x.id}" disabled>${x.say}</button>`).join("");
+  $("chips").querySelectorAll(".chip").forEach(b=>b.onclick=()=>judge([b.textContent],true));
+  countdown(3);
+}
+function countdown(n){
+  if(n===0){reveal();return}
+  $("scene").innerHTML=`<div class="cd"><div style="display:flex;flex-direction:column;align-items:center;gap:4px"><span>${n}</span><small>รอบที่ ${idx+1} พร้อมไหม?</small></div></div>`;
+  tone(n===1?660:440,.12);
+  cdId=setTimeout(()=>countdown(n-1),800);
+}
+function reveal(){
+  const s=cur(),M=MODES[mode];
+  $("scene").innerHTML=`<svg viewBox="0 0 400 260" role="img" aria-label="${s.caption}">${s.svg(SHIRTS[Math.floor(Math.random()*SHIRTS.length)])}</svg>`;
+  $("caption").hidden=!M.caption;
+  locked=false;
+  const showChips=M.chips||micWorks===false||!SR;
+  $("chips").hidden=!showChips;$("chipsLabel").hidden=!showChips;
+  $("chips").querySelectorAll(".chip").forEach(b=>b.disabled=false);
+  $("status").textContent=micWorks===false?"ไมค์ใช้ไม่ได้ในหน้านี้ แตะคำตอบด้านล่างแทน":"กดไมค์แล้วพูดได้เลย";
+  if(M.time)startTimer(M.time);
+  if(micWorks)startRec();
+}
+function startTimer(sec){
+  const end=Date.now()+sec*1000;$("timerRow").hidden=false;
+  const tick=()=>{const left=Math.max(0,end-Date.now());
+    $("tbar").style.width=(left/(sec*1000)*100)+"%";$("tbar").classList.toggle("low",left<sec*400);
+    $("tleft").textContent=Math.ceil(left/1000);
+    if(left<=0){clearInterval(timerId);timeUp()}};
+  tick();timerId=setInterval(tick,100);
+}
+function timeUp(){
+  if(solved)return;
+  solved=true;locked=true;missed++;stopAll();beep(false);
+  const s=cur();
+  feedback(false,"หมดเวลา!",`คำตอบคือ “${s.say}” ${s.explain}`,true);
+  lockChips();
+}
+function lockChips(){$("chips").querySelectorAll(".chip").forEach(b=>b.disabled=true)}
+
+/* ---------- judging ---------- */
+function norm(t){return (t||"").replace(/[\s.,!?"'“”]/g,"")}
+function judge(alts,tapped){
+  if(solved||locked)return;
+  const s=cur(),M=MODES[mode];const texts=alts.map(norm);
+  if(!tapped)$("heard").textContent="“"+alts[0]+"”";
+  if(texts.some(t=>s.match.test(t))){
+    solved=true;stopAll();if(tries===0)stars++;
+    beep(true);feedback(true,`ถูกต้อง! “${s.say}”`,s.explain,true);lockChips();return;
+  }
+  const other=inSet().find(x=>x!==s&&texts.some(t=>x.match.test(t)));
+  if(!other&&!tapped&&mode!=="easy"){ // unclear speech: let them try again, no penalty
+    $("status").textContent="ฟังไม่ชัด รีบพูดอีกครั้ง!";if(micWorks)setTimeout(startRec,250);return;
+  }
+  tries++;beep(false);
+  if(!M.retry){
+    solved=true;missed++;stopAll();lockChips();
+    feedback(false,"ยังไม่ใช่",`คำตอบคือ “${s.say}” ${s.explain}`,true);return;
+  }
+  if(other)feedback(false,"ยังไม่ใช่",`“${other.say}” ใช้กับอีกสถานการณ์ ลองดูภาพอีกครั้ง ${GROUPS[s.group].ask}`,false);
+  else feedback(false,"ฟังไม่ชัด",`ลองพูดอีกครั้งให้ช้าและชัด${tries>=2?` คำใบ้: คำตอบขึ้นต้นด้วย “${s.say.slice(0,2)}…”`:""}`,false);
+  if(micWorks&&mode!=="easy")setTimeout(startRec,600);
+}
+function feedback(ok,v,e,done){
+  const f=$("feedback");f.hidden=false;f.className="feedback "+(ok?"ok":"no");
+  $("verdict").textContent=v;$("explain").textContent=e;
+  const a=$("fbActions");a.innerHTML="";
+  if(done){$("bar").style.width=((idx+1)/order.length*100)+"%";
+    const b=document.createElement("button");b.className="btn btn-main";b.textContent=idx<order.length-1?"รอบถัดไป":"ดูผลภารกิจ";b.onclick=next;a.appendChild(b);b.focus({preventScroll:true})}
+}
+function next(){idx++;if(idx>=order.length){finish();return}render()}
+function finish(){
+  stopAll();const n=order.length;
+  $("score").textContent=`${stars}/${n}`;
+  const st=Math.round(stars/n*5);
+  $("stars").textContent="★".repeat(st)+"☆".repeat(5-st);
+  $("rulesEnd").innerHTML=rulesHTML(true);
+  $("note").textContent=`ชุด${SETS[set].name} · ระดับ${MODES[mode].label} · ตอบถูกในครั้งแรก ${stars} รอบ${missed?` · พลาด ${missed} รอบ`:""}`;
+  show("end");
+}
+
+/* ---------- voice ---------- */
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+function micFail(msg){micWorks=false;listening=false;$("mic").classList.remove("listening");$("status").textContent=msg;$("chips").hidden=false;$("chipsLabel").hidden=false}
+function listen(){ // mic button: toggle
+  if(listening){try{rec.stop()}catch(e){}return}
+  startRec();
+}
+function startRec(){
+  if(solved||locked||listening)return;
+  if(!SR){micFail("เบราว์เซอร์นี้ไม่รองรับการฟังเสียง ใช้ Chrome หรือแตะคำตอบด้านล่างแทน");return}
+  rec=new SR();rec.lang="th-TH";rec.interimResults=true;rec.maxAlternatives=5;rec.continuous=false;
+  rec.onstart=()=>{listening=true;$("mic").classList.add("listening");$("status").textContent="กำลังฟัง… พูดได้เลย"};
+  rec.onresult=e=>{
+    const r=e.results[e.results.length-1];
+    $("heard").textContent="“"+r[0].transcript+"”";
+    if(r.isFinal){micWorks=true;const alts=[];for(let i=0;i<r.length;i++)alts.push(r[i].transcript);judge(alts,false)}
+  };
+  rec.onerror=e=>{
+    if(e.error==="not-allowed"||e.error==="service-not-allowed")micFail("เปิดไมค์ไม่ได้ในหน้านี้ แตะคำตอบด้านล่างแทน");
+    else if(e.error==="no-speech")$("status").textContent="ไม่ได้ยินเสียง กดไมค์แล้วลองพูดใหม่";
+    else if(e.error==="network")micFail("การฟังเสียงต้องต่ออินเทอร์เน็ต แตะคำตอบด้านล่างแทน");
+  };
+  rec.onend=()=>{listening=false;$("mic").classList.remove("listening");if(micWorks&&MODES[mode].time&&!solved&&!locked){setTimeout(startRec,150);return}if(micWorks!==false&&!solved&&$("status").textContent.startsWith("กำลังฟัง"))$("status").textContent="กดไมค์เพื่อพูดอีกครั้ง"};
+  listening=true;try{rec.start()}catch(e){micFail("เปิดไมค์ไม่ได้ในหน้านี้ แตะคำตอบด้านล่างแทน")}
+}
+
+/* ---------- sound ---------- */
+let ac=null;
+function beep(ok){
+  try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();
+    const notes=ok?[523,659,784]:[220,180];
+    notes.forEach((f,i)=>{const o=ac.createOscillator(),g=ac.createGain();o.type=ok?"triangle":"square";o.frequency.value=f;
+      const t=ac.currentTime+i*.12;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(ok?.25:.08,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+.18);
+      o.connect(g).connect(ac.destination);o.start(t);o.stop(t+.2)})}catch(e){}
+}
+
+$("go").onclick=startGame;
+$("again").onclick=startGame;
+$("home").onclick=()=>show("start");
+function tone(f,d){try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator(),g=ac.createGain();o.frequency.value=f;const t=ac.currentTime;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.2,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g).connect(ac.destination);o.start(t);o.stop(t+d+.02)}catch(e){}}
+$("mic").onclick=listen;
+</script>
